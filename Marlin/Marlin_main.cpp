@@ -243,11 +243,29 @@ int EtoPPressure=0;
 
 #ifdef FWRETRACT
   bool autoretract_enabled=false;
-  bool retracted=false;
+  bool retracted[EXTRUDERS]={false
+    #if EXTRUDERS > 1
+    , false
+     #if EXTRUDERS > 2
+      , false
+     #endif
+  #endif
+  };
+  bool retracted_swap[EXTRUDERS]={false
+    #if EXTRUDERS > 1
+    , false
+     #if EXTRUDERS > 2
+      , false
+     #endif
+  #endif
+  };
+
   float retract_length = RETRACT_LENGTH;
+  float retract_length_swap = RETRACT_LENGTH_SWAP;
   float retract_feedrate = RETRACT_FEEDRATE;
   float retract_zlift = RETRACT_ZLIFT;
   float retract_recover_length = RETRACT_RECOVER_LENGTH;
+  float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
   float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 #endif
 
@@ -394,6 +412,26 @@ void enquecommand_P(const char *cmd)
   }
 }
 
+bool is_command_queued()
+{
+    return buflen > 0;
+}
+
+uint8_t commands_queued()
+{
+    return buflen;
+}
+
+void waituntilbufferavailable()
+{
+  while (buflen == BUFSIZE)
+  {
+    lcd_quick_feedback();
+    loop();
+  }
+  return;
+}
+
 void setup_killpin()
 {
   #if defined(KILL_PIN) && KILL_PIN > -1
@@ -533,10 +571,13 @@ void setup()
 
 void loop()
 {
+  #ifdef SDSUPPORT
+  if((buflen < (BUFSIZE-1)) && !card.pause)
+    get_command();
+  card.checkautostart(false);
+  #else
   if(buflen < (BUFSIZE-1))
     get_command();
-  #ifdef SDSUPPORT
-  card.checkautostart(false);
   #endif
   if(buflen)
   {
@@ -692,6 +733,11 @@ void get_command()
   }
   #ifdef SDSUPPORT
   if(!card.sdprinting || serial_count!=0){
+    return;
+  }
+  
+  if (card.pause)
+  {
     return;
   }
 
@@ -1117,23 +1163,27 @@ void refresh_cmd_timeout(void)
 }
 
 #ifdef FWRETRACT
-  void retract(bool retracting) {
-    if(retracting && !retracted) {
+  void retract(bool retracting, bool swapretract = false) {
+    if(retracting && !retracted[active_extruder]) {
       destination[X_AXIS]=current_position[X_AXIS];
       destination[Y_AXIS]=current_position[Y_AXIS];
       destination[Z_AXIS]=current_position[Z_AXIS];
       destination[E_AXIS]=current_position[E_AXIS];
-      current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
+      if (swapretract) {
+        current_position[E_AXIS]+=retract_length_swap/volumetric_multiplier[active_extruder];
+      } else {
+        current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
+      }
       plan_set_e_position(current_position[E_AXIS]);
       float oldFeedrate = feedrate;
       feedrate=retract_feedrate*60;
-      retracted=true;
+      retracted[active_extruder]=true;
       prepare_move();
       current_position[Z_AXIS]-=retract_zlift;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       prepare_move();
       feedrate = oldFeedrate;
-    } else if(!retracting && retracted) {
+    } else if(!retracting && retracted[active_extruder]) {
       destination[X_AXIS]=current_position[X_AXIS];
       destination[Y_AXIS]=current_position[Y_AXIS];
       destination[Z_AXIS]=current_position[Z_AXIS];
@@ -1141,11 +1191,15 @@ void refresh_cmd_timeout(void)
       current_position[Z_AXIS]+=retract_zlift;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       //prepare_move();
-      current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
+      if (swapretract) {
+        current_position[E_AXIS]-=(retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
+      } else {
+        current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
+      }
       plan_set_e_position(current_position[E_AXIS]);
       float oldFeedrate = feedrate;
       feedrate=retract_recover_feedrate*60;
-      retracted=false;
+      retracted[active_extruder]=false;
       prepare_move();
       feedrate = oldFeedrate;
     }
@@ -1215,10 +1269,19 @@ void process_commands()
       break;
       #ifdef FWRETRACT
       case 10: // G10 retract
+       #if EXTRUDERS > 1
+        retracted_swap[active_extruder]=(code_seen('S') && code_value_long() == 1); // checks for swap retract argument
+        retract(true,retracted_swap[active_extruder]);
+       #else
         retract(true);
+       #endif
       break;
       case 11: // G11 retract_recover
+       #if EXTRUDERS > 1
+        retract(false,retracted_swap[active_extruder]);
+       #else
         retract(false);
+       #endif 
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
@@ -2391,8 +2454,28 @@ void process_commands()
         int t= code_value() ;
         switch(t)
         {
-          case 0: autoretract_enabled=false;retracted=false;break;
-          case 1: autoretract_enabled=true;retracted=false;break;
+          case 0: 
+          {
+            autoretract_enabled=false;
+            retracted[0]=false;
+            #if EXTRUDERS > 1
+              retracted[1]=false;
+            #endif
+            #if EXTRUDERS > 2
+              retracted[2]=false;
+            #endif
+          }break;
+          case 1: 
+          {
+            autoretract_enabled=true;
+            retracted[0]=false;
+            #if EXTRUDERS > 1
+              retracted[1]=false;
+            #endif
+            #if EXTRUDERS > 2
+              retracted[2]=false;
+            #endif
+          }break;
           default:
             SERIAL_ECHO_START;
             SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
@@ -2904,6 +2987,76 @@ void process_commands()
     }
     break;
     #endif //FILAMENTCHANGEENABLE
+    #ifdef FWRETRACT
+    case 601: //Pause in Menu, X[pos] Y[pos] Z[relative lift] L[later retract distance]
+    {
+        float target[4];
+        float lastpos[4];
+        target[X_AXIS]=current_position[X_AXIS];
+        target[Y_AXIS]=current_position[Y_AXIS];
+        target[Z_AXIS]=current_position[Z_AXIS];
+        target[E_AXIS]=current_position[E_AXIS];
+        lastpos[X_AXIS]=current_position[X_AXIS];
+        lastpos[Y_AXIS]=current_position[Y_AXIS];
+        lastpos[Z_AXIS]=current_position[Z_AXIS];
+        lastpos[E_AXIS]=current_position[E_AXIS];
+
+        target[E_AXIS] -= retract_length/volumetric_multiplier[active_extruder];
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], retract_feedrate, active_extruder);
+
+        //lift Z
+        if(code_seen('Z'))
+        {
+          target[Z_AXIS]+= code_value();
+        }
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+
+        //move xy
+        if(code_seen('X'))
+        {
+          target[X_AXIS] = code_value();
+        }
+        if(code_seen('Y'))
+        {
+          target[Y_AXIS] = code_value();
+        }
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder);
+
+        if(code_seen('L'))
+        {
+          target[E_AXIS] -= code_value()/volumetric_multiplier[active_extruder];
+        }
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], retract_feedrate, active_extruder);
+
+        //finish moves
+        st_synchronize();
+        //disable extruder steppers so filament can be removed
+        enable_x();
+        enable_y();
+        enable_z();
+        disable_e0();
+        disable_e1();
+        disable_e2();
+        while(card.pause){
+          manage_heater();
+          manage_inactivity();
+          lcd_update();
+//          lifetime_stats_tick();
+        }
+
+        //return to normal
+        if(code_seen('L'))
+        {
+          target[E_AXIS] += code_value()/volumetric_multiplier[active_extruder];
+        }
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], retract_feedrate, active_extruder); //Move back the L feed.
+        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder); //move xy back
+        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder); //move z back
+        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], retract_feedrate, active_extruder); //final untretract
+    }
+    break;
+    #endif//FWRETRACT
+
     #ifdef DUAL_X_CARRIAGE
     case 605: // Set dual x-carriage movement mode:
               //    M605 S0: Full control mode. The slicer has full control over x-carriage movement
@@ -3445,9 +3598,24 @@ void manage_inactivity()
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
       if(blocks_queued() == false) {
+        #ifndef SDSUPPORT
         disable_x();
         disable_y();
         disable_z();
+        #else
+        if (card.pause) //keep x/y/z axis enabled during pause feature
+        {
+          enable_x();
+          enable_y();
+          enable_z();
+        }
+        else
+        {
+          disable_x();
+          disable_y();
+          disable_z();
+        }
+        #endif
         disable_e0();
         disable_e1();
         disable_e2();

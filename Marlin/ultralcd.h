@@ -42,6 +42,8 @@
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
+
+  void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();

@@ -186,6 +186,9 @@ bool IsStopped();
 
 void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
 void enquecommand_P(const char *cmd); //put an ASCII command at the end of the current buffer, read from flash
+bool is_command_queued();
+uint8_t commands_queued();
+void waituntilbufferavailable();
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
@@ -231,9 +234,9 @@ extern unsigned char fanSpeedSoftPwm;
 
 #ifdef FWRETRACT
 extern bool autoretract_enabled;
-extern bool retracted;
-extern float retract_length, retract_feedrate, retract_zlift;
-extern float retract_recover_length, retract_recover_feedrate;
+extern bool retracted[EXTRUDERS];
+extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
+extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
 extern unsigned long starttime;

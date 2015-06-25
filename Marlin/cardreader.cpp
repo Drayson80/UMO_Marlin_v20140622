@@ -14,6 +14,7 @@ CardReader::CardReader()
    filesize = 0;
    sdpos = 0;
    sdprinting = false;
+   pause = false;
    cardOK = false;
    saving = false;
    logging = false;
@@ -199,6 +200,7 @@ void CardReader::setroot()
 void CardReader::release()
 {
   sdprinting = false;
+  pause = false;
   cardOK = false;
 }
 
@@ -207,6 +209,7 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
+    pause = false;
   }
 }
 
@@ -214,7 +217,7 @@ void CardReader::pauseSDPrint()
 {
   if(sdprinting)
   {
-    sdprinting = false;
+    pause = true;
   }
 }
 
@@ -288,6 +291,7 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
     SERIAL_ECHOLN(name);
   }
   sdprinting = false;
+  pause = false;
   
  
   SdFile myDir;
@@ -384,7 +388,7 @@ void CardReader::removeFile(char* name)
     return;
   file.close();
   sdprinting = false;
-  
+  pause = false;
   
   SdFile myDir;
   curDir=&root;
@@ -437,7 +441,7 @@ void CardReader::removeFile(char* name)
     if (file.remove(curDir, fname)) 
     {
       SERIAL_PROTOCOLPGM("File deleted:");
-      SERIAL_PROTOCOLLN(fname);
+      SERIAL_PROTOCOL(fname);
       sdpos = 0;
     }
     else
@@ -627,6 +631,7 @@ void CardReader::printingHasFinished()
       quickStop();
       file.close();
       sdprinting = false;
+      pause = false;
       if(SD_FINISHED_STEPPERRELEASE)
       {
           //finishAndDisableSteppers();
