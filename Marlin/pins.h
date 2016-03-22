@@ -1318,7 +1318,7 @@
 #define SDSS               53
 #define LED_PIN            13
 #define FAN_PIN            7
-#define PS_ON_PIN          12
+#define PS_ON_PIN          -1 // UMO has this to 12, but as it is not connected on the ultiboard 1.5.X setting back to -1. This will cleanup the UC menu too.
 #define KILL_PIN           -1
 #define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
 
