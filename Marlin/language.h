@@ -167,6 +167,7 @@
 	#define MSG_DWELL "Sleep..."
 	#define MSG_USERWAIT "Wait for user..."
 	#define MSG_RESUMING "Resuming print"
+	#define MSG_PRINT_ABORTED "Print aborted"
 	#define MSG_NO_MOVE "No move."
 	#define MSG_KILLED "KILLED. "
 	#define MSG_STOPPED "STOPPED. "

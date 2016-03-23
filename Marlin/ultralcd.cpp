@@ -267,10 +267,12 @@ static void lcd_sdcard_stop()
 			enquecommand_P(PSTR(SD_FINISHED_MOVEEXTRUDERAWAY1));
 		else
 			enquecommand_P(PSTR(SD_FINISHED_MOVEEXTRUDERAWAY0));
-		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
 		disable_heater();
     autotempShutdown();
+	
+	lcd_setstatus(MSG_PRINT_ABORTED);
 }
 
 /* Menu implementation */
