@@ -1321,6 +1321,9 @@
 #define PS_ON_PIN          -1 // UMO has this to 12, but as it is not connected on the ultiboard 1.5.X setting back to -1. This will cleanup the UC menu too.
 #define KILL_PIN           -1
 #define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
+#ifdef FILAMENT_RUNOUT_SENSOR  // define digital pin 8 on Exp3 for the filament runout sensor.
+  #define FILRUNOUT_PIN     8
+#endif
 
 #ifdef ULTRA_LCD
 
