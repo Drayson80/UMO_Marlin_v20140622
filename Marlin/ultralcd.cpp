@@ -264,10 +264,15 @@ static void lcd_sdcard_stop()
     if(SD_FINISHED_STEPPERRELEASE)
     {
 		if (current_position[Z_AXIS] < Z_MAX_POS - 191)
+		{
 			enquecommand_P(PSTR(SD_FINISHED_MOVEEXTRUDERAWAY1));
+			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
 		else
+		{
 			enquecommand_P(PSTR(SD_FINISHED_MOVEEXTRUDERAWAY0));
 			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		}
     }
 		disable_heater();
     autotempShutdown();
