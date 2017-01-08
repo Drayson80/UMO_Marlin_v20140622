@@ -460,7 +460,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // default settings
 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker with standard steper drivers
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,(200.0*8/3)*2,760*1.1}  // steps per unit for Ultimaker with SSS steper drivers at X, Y, Z, E
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,(200.0*8/3)*2,760*1.1}  // steps per unit for Ultimaker with SSS steper drivers at X, Y, Z, E
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.0000,78.8700,(200.0*8/3)*2,760*1.1}  // steps per unit for Ultimaker with SSS steper drivers at X, Y, Z, E
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
@@ -497,10 +498,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
