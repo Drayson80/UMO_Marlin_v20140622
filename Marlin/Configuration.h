@@ -347,6 +347,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef FILAMENT_RUNOUT_SENSOR
   const bool FIL_RUNOUT_INVERTING = true;  // true or false should assigned
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+  //#define BEEP_DURING_FILAMENT_CHANGE //Uncomment to enable an annoying beeper during the filament change command
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
 
