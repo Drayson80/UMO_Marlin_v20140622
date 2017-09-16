@@ -458,11 +458,35 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
-// default settings
+//Select belt type
+//#define MXL  // Ultimaker Original
+#define GT2  // UM2, UM3, modified UMO
 
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker with standard steper drivers
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,(200.0*8/3)*2,760*1.1}  // steps per unit for Ultimaker with SSS steper drivers at X, Y, Z, E
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.0000,78.8700,(200.0*8/3)*2,760*1.1}  // steps per unit for Ultimaker with SSS steper drivers at X, Y, Z, E
+// select stepper driver type
+//#define A4988   // Ultimaker standard at all axes (X,Y,Z,E)
+#define TMC2100  // Silent Step Stick TMC2100 mod at all axes (X,Y,Z,E)
+
+#ifdef MXL
+	//#def STP_X 78.7402
+	//#def STP_Y 78.7402
+	#def STP_X 79.0000  // UMO acc. to actuals - CE mod
+	#def STP_Y 78.8700  // UMO acc. to actuals - CE mod
+#endif
+#ifdef GT2
+	#def STP_X 80.0000
+	#def STP_Y 80.0000
+#endif
+
+#ifdef A4988
+	#define STP_Z 200.0*8/3
+#endif
+#ifdef TMC2100
+	#define STP_Z (200.0*8/3)*2
+#endif
+#def STP_E 760*1.1
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {STP_X,STP_Y,STP_Z,STP_E}  // steps per unit at X, Y, Z, E
+
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
