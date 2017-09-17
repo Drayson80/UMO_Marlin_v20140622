@@ -1276,60 +1276,83 @@
 
 #define LARGE_FLASH true
 
-#define X_STEP_PIN 25
-#define X_DIR_PIN 23
+//====================
+// Limit Switches
+//====================
 #define X_MIN_PIN 22
 #define X_MAX_PIN 24
-#define X_ENABLE_PIN 27
 
-#define Y_STEP_PIN 31
-#define Y_DIR_PIN 33
 #define Y_MIN_PIN 26
 #define Y_MAX_PIN 28
-#define Y_ENABLE_PIN 29
 
-#define Z_STEP_PIN 37
-#define Z_DIR_PIN 39
 #define Z_MIN_PIN 30
 #define Z_MAX_PIN 32
-#define Z_ENABLE_PIN 35
 
-#define HEATER_BED_PIN 4
-#define TEMP_BED_PIN 10
+//====================
+// Steppers
+//====================
+#define X_STEP_PIN      25
+#define X_DIR_PIN       23
+#define X_ENABLE_PIN    27
 
-#define HEATER_0_PIN  2
-#define TEMP_0_PIN 8
+#define Y_STEP_PIN      31
+#define Y_DIR_PIN       33
+#define Y_ENABLE_PIN    29
 
-#define HEATER_1_PIN 3
-#define TEMP_1_PIN 9
+#define Z_STEP_PIN      37
+#define Z_DIR_PIN       39
+#define Z_ENABLE_PIN    35
 
-#define HEATER_2_PIN -1
-#define TEMP_2_PIN -1
+#define E0_STEP_PIN     43
+#define E0_DIR_PIN      45
+#define E0_ENABLE_PIN   41
 
-#define E0_STEP_PIN         43
-#define E0_DIR_PIN          45
-#define E0_ENABLE_PIN       41
+#define E1_STEP_PIN     49
+#define E1_DIR_PIN      47
+#define E1_ENABLE_PIN   48
 
-#define E1_STEP_PIN         49
-#define E1_DIR_PIN          47
-#define E1_ENABLE_PIN       48
+//====================
+// Heaters / Fans
+//====================
+#define HEATER_0_PIN    2
+#define HEATER_1_PIN    3
+#define HEATER_2_PIN   -1 //(n.a.)
+#define HEATER_BED_PIN  4
 
-#define SDPOWER            -1
+//====================
+// Temperature Sensors
+//====================
+#define TEMP_0_PIN     8 // Analog Input
+#define TEMP_1_PIN     9 // Analog Input
+#define TEMP_2_PIN    -1 // (n.a.)
+#define TEMP_BED_PIN  10 // Analog Input
+
+//====================
+// Misc. Functions
+//====================
+#define SDPOWER            -1  // (n.a.)
 #define SDSS               53
 #define LED_PIN            13
 #define FAN_PIN            7
-#define PS_ON_PIN          -1 // UMO has this to 12, but as it is not connected on the ultiboard 1.5.X setting back to -1. This will cleanup the UC menu too.
-#define KILL_PIN           -1
+#define PS_ON_PIN          -1  // UMO has this to 12, but as it is not connected on the ultiboard 1.5.X setting back to -1. This will cleanup the UC menu too.
+#define KILL_PIN           -1  // (n.a.)
 #define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
-#ifdef FILAMENT_RUNOUT_SENSOR  // define digital pin 8 on Exp3 for the filament runout sensor.
-  #define FILRUNOUT_PIN     8
+
+#ifdef PHOTOGRAPH  
+	#define PHOTOGRAPH_PIN 10  // define digital pin 10 on Exp3 for use with a ID diode to trigger a camera.
 #endif
 
+#ifdef FILAMENT_RUNOUT_SENSOR  
+  #define FILRUNOUT_PIN    8   // define digital pin 8 on Exp3 for the filament runout sensor.
+#endif
+
+//====================
+// LCD / Controller
+//====================
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL
-  //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 18
+      #define BEEPER 18    //arduino pin witch triggers an piezzo beeper
 
     #define LCD_PINS_RS 20
     #define LCD_PINS_ENABLE 17
@@ -1366,24 +1389,35 @@
   #endif
 #endif //ULTRA_LCD
 
+
+//====================
+// Servos
+//====================
   #ifdef NUM_SERVOS
     #define SERVO0_PIN         13
 
     #if NUM_SERVOS > 1
-      #define SERVO1_PIN         6 //TODO
+      #define SERVO1_PIN       12 //TODO
     #endif
 
     #if NUM_SERVOS > 2
-      #define SERVO2_PIN         5 //TODO
+      #define SERVO2_PIN       11 //TODO
     #endif
 
-    #if NUM_SERVOS > 3
-      #define SERVO3_PIN         4 //TODO
-    #endif
   #endif
 
 
-
+//====================
+// SUMMARY EXP3 PORT PINS
+//====================
+//  PIN 8  => FILRUNOUT_PIN
+//  PIN 9  => 
+//  PIN 10 => Laser on/off via M42 or Photo trigger via M240
+//  PIN 11 => Servo2_PIN (functionality not applied)
+//  PIN 12 => Servo1_PIN (functionality not applied)
+//  PIN 13 => Servo0_PIN via M280
+//
+//
 
 #endif
 
