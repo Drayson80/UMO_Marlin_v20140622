@@ -467,14 +467,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define TMC2100  // Silent Step Stick TMC2100 mod at all axes (X,Y,Z,E)
 
 #ifdef MXL
-	//#def STP_X 78.7402
-	//#def STP_Y 78.7402
-	#def STP_X 79.0000  // UMO acc. to actuals - CE mod
-	#def STP_Y 78.8700  // UMO acc. to actuals - CE mod
+    //#define STP_X 78.7402
+    //#define STP_Y 78.7402
+    #define STP_X 79.0000  // UMO acc. to actuals - CE mod
+    #define STP_Y 78.8700  // UMO acc. to actuals - CE mod
 #endif
 #ifdef GT2
-	#def STP_X 80.0000
-	#def STP_Y 80.0000
+    #define STP_X 80.0000
+    #define STP_Y 80.0000
 #endif
 
 #ifdef A4988
@@ -483,7 +483,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef TMC2100
 	#define STP_Z (200.0*8/3)*2
 #endif
-#def STP_E 760*1.1
+#define STP_E 760*1.1
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {STP_X,STP_Y,STP_Z,STP_E}  // steps per unit at X, Y, Z, E
 
