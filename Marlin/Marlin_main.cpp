@@ -219,14 +219,14 @@ float zprobe_zoffset;
 
 // Extruder offset
 #if EXTRUDERS > 1
-#ifndef DUAL_X_CARRIAGE
-  #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-#else
+//#ifndef DUAL_X_CARRIAGE
+//  #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
+//#else
   #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-#endif
+//#endif
 float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-#if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
-  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
+#if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y) && defined(EXTRUDER_OFFSET_Z)
+  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y, EXTRUDER_OFFSET_Z
 #endif
 };
 #endif
@@ -2502,7 +2502,7 @@ void process_commands()
     }break;
     #endif // FWRETRACT
     #if EXTRUDERS > 1
-    case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
+    case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y> Z<offset_on_Z>
     {
       if(setTargetedHotend(218)){
         break;
@@ -2515,12 +2515,12 @@ void process_commands()
       {
         extruder_offset[Y_AXIS][tmp_extruder] = code_value();
       }
-      #ifdef DUAL_X_CARRIAGE
+//      #ifdef DUAL_X_CARRIAGE
       if(code_seen('Z'))
       {
         extruder_offset[Z_AXIS][tmp_extruder] = code_value();
       }
-      #endif
+//      #endif
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
       for(tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++)
@@ -2529,10 +2529,10 @@ void process_commands()
          SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
          SERIAL_ECHO(",");
          SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
-      #ifdef DUAL_X_CARRIAGE
+ //     #ifdef DUAL_X_CARRIAGE
          SERIAL_ECHO(",");
          SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
-      #endif
+//      #endif
       }
       SERIAL_ECHOLN("");
     }break;
