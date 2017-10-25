@@ -317,9 +317,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
+
+//Uncomment the following define if you're using only the bottom Z end-stop as per Neotko's mod on Ultimaker
+//https://ultimaker.com/en/community/22120-idea-new-location-for-z-limit-on-umo
+
+//#define UMO_BOTTOM_Z_STOP_MOD
+
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
+#ifdef UMO_BOTTOM_Z_STOP_MOD
+    #define Z_HOME_DIR 1
+#else
 #define Z_HOME_DIR -1
+#endif
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.

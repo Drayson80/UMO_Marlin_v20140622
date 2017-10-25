@@ -62,6 +62,12 @@ static void lcd_set_contrast();
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
+#ifdef UMO_BOTTOM_Z_STOP_MOD
+static void lcd_init_z_adjustment();
+static void lcd_prepare_info_z();
+static void lcd_prepare_adjust_z();
+#endif
+
 
 /* Different types of actions that can be used in menu items. */
 static void menu_action_back(menuFunc_t data);
@@ -575,6 +581,72 @@ void lcd_cooldown()
     lcd_return_to_status();
 }
 
+#ifdef UMO_BOTTOM_Z_STOP_MOD
+/* OFFSET BED ALIGN */
+static void lcd_init_z_adjustment()
+{
+    Config_RetrieveSettings(); // reset to the stored settings
+    add_homeing[Z_AXIS] = 0;   // Reset Offset to 0 to prepare adjustments
+    enquecommand_P(PSTR("G28 Z")); // Move to Z bottom endstop
+    menu_action_submenu(lcd_prepare_info_z); // 1 - Show basic info and jump to lcd_prepare_info_z
+}
+
+static void lcd_prepare_info_z()
+{
+    enquecommand_P(PSTR("G1 Z30")); // Move to Z to A safe 30mm height This shouldn't hit um2 or umo+ hotend and could be 20 probably
+    lcd_implementation_draw_line(0, PSTR("- Redefine Z 0.00 -"));
+    lcd_implementation_draw_line(1, PSTR("Move the bed until"));
+    lcd_implementation_draw_line(2, PSTR("Kisses the nozzle"));
+    lcd_implementation_draw_line(3, PSTR("- Push to start -"));
+    // wait for Click to continue
+    if (LCD_CLICKED)
+    {
+        // clean screen to continue
+          lcd_implementation_draw_line(0, PSTR(""));
+          lcd_implementation_draw_line(1, PSTR(""));
+          lcd_implementation_draw_line(2, PSTR(""));
+          lcd_implementation_draw_line(3, PSTR(""));
+          lcd_quick_feedback();
+          menu_action_submenu(lcd_prepare_adjust_z);  // 2- Jump to lcd_prepare_adjust_z
+    }
+}
+
+static void lcd_prepare_adjust_z()
+{
+    if (encoderPosition != 0)
+    {
+        refresh_cmd_timeout();
+        current_position[Z_AXIS] += float((int)encoderPosition) * 0.02;
+        encoderPosition = 0;
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Z Ooffset"), ftostr31(current_position[Z_AXIS]));
+        lcd_implementation_draw_line(3, PSTR("Push to Continue"));
+    }
+    if (LCD_CLICKED)
+    {
+        // set's current Z position as the 0
+        add_homeing[Z_AXIS] -= current_position[Z_AXIS];
+        // store all settings (including the new z-offset)
+        Config_StoreSettings();
+        // important: tell the printer that we are at z=0 now
+        current_position[Z_AXIS] = 0;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        // move z down a few mm
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], 5.0f, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        // important: inform the printer about the new position
+        current_position[Z_AXIS] = 5.0f;
+        // return to the previous menu
+        lcd_quick_feedback();
+        currentMenu = lcd_prepare_menu;
+        encoderPosition = 0;
+    }
+}
+#endif
+
 static void lcd_prepare_menu()
 {
     START_MENU();
@@ -606,7 +678,11 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+#ifdef UMO_BOTTOM_Z_STOP_MOD
+    MENU_ITEM(submenu, MSG_REALIGN_Z_OFFSET, lcd_init_z_adjustment);
+#endif
     END_MENU();
+
 }
 
 float move_menu_scale;
