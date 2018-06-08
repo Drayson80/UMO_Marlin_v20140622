@@ -134,8 +134,8 @@
 // 110 is Pt100 with 1k pullup (non standard)
 // 70 is 500C thermistor for Pico hot end
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 20
+#define TEMP_SENSOR_1 20
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 1
 
@@ -350,6 +350,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   //#define BEEP_DURING_FILAMENT_CHANGE //Uncomment to enable an annoying beeper during the filament change command
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
+
+#define FAN_UM2HEADPIN // Uncomment for defining an additional fan cooling the head similar to UM2
+// M246 Sx UM2-like Printhead Fan, value 0 (OFF) - 255 (FULL ON)
+
 
 //===========================================================================
 //============================= Bed Auto Leveling ===========================

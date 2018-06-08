@@ -147,6 +147,7 @@
 // M221 S<factor in percent>- set extrude factor override percentage
 // M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
 // M240 - Trigger a camera to take a photograph
+// M246 - UM2-like Printhead Fan via S0-S255
 // M250 - Set LCD contrast C<contrast value> (value 0..63)
 // M280 - set servo position absolute. P: servo index, S: angle or microseconds
 // M300 - Play beep sound S<frequency Hz> P<duration ms>
@@ -2125,6 +2126,18 @@ void process_commands()
         fanSpeed = 0;
         break;
     #endif //FAN_PIN
+	
+	#if defined(FAN_UM2HEADPIN) && FAN_UM2HEADPIN > -1
+      case 246: //M246 UM2-like Printhead Fan On
+        if (code_seen('S')){
+           fanSpeed=constrain(code_value(),0,255);
+        }
+        else {
+          fanSpeed=255;
+        }
+        break;
+    #endif //FAN_UM2HEADPIN
+		
     #ifdef BARICUDA
       // PWM for HEATER_1_PIN
       #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
