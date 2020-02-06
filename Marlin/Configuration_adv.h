@@ -292,6 +292,8 @@
 #define SD_FINISHED_MOVEEXTRUDERAWAY1 "G01 X10 Y10 Z10 F5000" //Move extruder away before disabling steppers - if Z is below 10mm
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
+//#define SDCARD_SORT_ALPHA // Sort SD file listings in ASCII order. Find additional options in cardreader.h
+
 #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
 // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
 // using:
