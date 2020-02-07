@@ -973,15 +973,22 @@ void lcd_sdcard_menu()
     {
         if (_menuItemNr == _lineNr)
         {
-            #ifndef SDCARD_RATHERRECENTFIRST
-              card.getfilename(i);
+            #if defined(SDCARD_RATHERRECENTFIRST) && !defined(SDCARD_SORT_ALPHA)
+              int nr = fileCnt-1-i;
             #else
-              card.getfilename(fileCnt-1-i);
+              int nr = i;
             #endif
-            if (card.filenameIsDir)
-            {
+
+            #ifdef SDCARD_SORT_ALPHA
+              card.getfilename_sorted(nr);
+            #else
+              card.getfilename(nr);
+            #endif
+
+            if (card.filenameIsDir) {
                 MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
-            }else{
+            }
+            else {
                 MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
             }
         }else{
