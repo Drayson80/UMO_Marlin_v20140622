@@ -121,6 +121,7 @@
 	#define MSG_FLOW1 "Flow 1"
 	#define MSG_FLOW2 "Flow 2"
 	#define MSG_CONTROL "Control"
+	#define MSG_VERSION "Firmware version"
 	#define MSG_MIN " \002 Min"
 	#define MSG_MAX " \002 Max"
 	#define MSG_FACTOR " \002 Fact"
