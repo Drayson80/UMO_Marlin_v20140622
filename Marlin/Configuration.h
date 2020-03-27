@@ -5,13 +5,6 @@
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
 
-//===========================================================================
-//============================= DELTA Printer ===============================
-//===========================================================================
-// For a Delta printer replace the configuration files with the files in the
-// example_configurations/delta directory.
-//
-
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
@@ -19,8 +12,7 @@
 #define STRING_CONFIG_H_AUTHOR "Drayson" // Who made the changes.
 //                      |01234567890123456789|
 #define VERSION_BASE    "Ultimaker: DEV_2014"
-#define VERSION_PROFILE "Drayson Dev_39.1"
-
+#define VERSION_PROFILE "Drayson Dev_41.1"
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.

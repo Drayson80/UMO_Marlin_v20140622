@@ -8,13 +8,6 @@
 #include "stepper.h"
 #include "ConfigurationStore.h"
 
-#define BED_CENTER_ADJUST_X (X_MAX_POS/2)
-#define BED_CENTER_ADJUST_Y ((int)Y_MAX_LENGTH - 25)
-#define BED_LEFT_ADJUST_X 25
-#define BED_LEFT_ADJUST_Y 15
-#define BED_RIGHT_ADJUST_X (X_MAX_POS - 25)
-#define BED_RIGHT_ADJUST_Y 15
-
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 
 /* Configuration settings */
@@ -661,16 +654,18 @@ static void bed_leveling()
     enquecommand_P(PSTR("G29"));
 #else	
     enquecommand_P(PSTR("G28")); //home all axes
+    enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
+    enquecommand_P(PSTR("G1 F5000 X40 Y15")); //move to bed leveling point 1
 	menu_action_submenu(point1BedAdjustment);
 #endif
 }
 
 static void point1BedAdjustment()
 {
-    enquecommand_P(PSTR("G1 Z0")); // Move to Z to 15 
-    lcd_implementation_draw_line(0, PSTR("Adjust bed screw"));
-    lcd_implementation_draw_line(1, PSTR("until nozzle touches"));
-    lcd_implementation_draw_line(2, PSTR("the bed in point 1"));
+  enquecommand_P(PSTR("G1 Z0")); // Move to Z to 0 
+    lcd_implementation_draw_line(0, PSTR("  Adjust bed screw  "));
+    lcd_implementation_draw_line(1, PSTR("  at level point 1  "));
+    lcd_implementation_draw_line(2, PSTR(""));
     lcd_implementation_draw_line(3, PSTR("- Push to continue -"));
     // wait for Click to continue
     if (LCD_CLICKED)
@@ -680,19 +675,18 @@ static void point1BedAdjustment()
           lcd_implementation_draw_line(1, PSTR(""));
           lcd_implementation_draw_line(2, PSTR(""));
           lcd_implementation_draw_line(3, PSTR(""));
-		  enquecommand_P(PSTR("G1 Z15")); //raise Z by 15 mm
-		  enquecommand_P(PSTR("G1 F3000 X90 Y180")); //move to bed leveling point 2
+		  enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
+		  enquecommand_P(PSTR("G1 F5000 X146 Y15")); //move to bed leveling point 2
           lcd_quick_feedback();
           menu_action_submenu(point2BedAdjustment);  //go to next leveling point routine
     }
 }
-
 static void point2BedAdjustment()
 {
     enquecommand_P(PSTR("G1 Z0")); // Move to Z to 0
-    lcd_implementation_draw_line(0, PSTR("Adjust bed screw"));
-    lcd_implementation_draw_line(1, PSTR("until nozzle touches"));
-    lcd_implementation_draw_line(2, PSTR("the bed in point 2"));
+    lcd_implementation_draw_line(0, PSTR("  Adjust bed screw  "));
+    lcd_implementation_draw_line(1, PSTR("  at level point 2  "));
+    lcd_implementation_draw_line(2, PSTR(""));
     lcd_implementation_draw_line(3, PSTR("- Push to continue -"));
     // wait for Click to continue
     if (LCD_CLICKED)
@@ -702,37 +696,29 @@ static void point2BedAdjustment()
           lcd_implementation_draw_line(1, PSTR(""));
           lcd_implementation_draw_line(2, PSTR(""));
           lcd_implementation_draw_line(3, PSTR(""));
-		  enquecommand_P(PSTR("G1 Z15")); //raise Z by 15 mm
-		  enquecommand_P(PSTR("G1 F3000 X180 Y20")); //move to bed leveling point 3
+		  enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
+		  enquecommand_P(PSTR("G1 F5000 X93 Y180")); //move to bed leveling point 3
           lcd_quick_feedback();
           menu_action_submenu(point3BedAdjustment);  //go to next leveling point routine
     }
 }
-
 static void point3BedAdjustment()
 {
     enquecommand_P(PSTR("G1 Z0")); // Move to Z to 0
-    lcd_implementation_draw_line(0, PSTR("Adjust bed screws"));
-    lcd_implementation_draw_line(1, PSTR("until nozzle touches"));
-    lcd_implementation_draw_line(2, PSTR("the bed in point 3"));
+    lcd_implementation_draw_line(0, PSTR("  Adjust bed screw  "));
+    lcd_implementation_draw_line(1, PSTR("  at level point 3  "));
+    lcd_implementation_draw_line(2, PSTR(""));
     lcd_implementation_draw_line(3, PSTR("- Push to continue -"));
     // wait for Click to continue
     if (LCD_CLICKED)
     {
-        enquecommand_P(PSTR("G1 Z15")); //raise Z by 15 mm
+    enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
 		enquecommand_P(PSTR("G28 X0 Y0")); //home X Y axes
-		enquecommand_P(PSTR("G28 Z0")); //home Z axe
-		enquecommand_P(PSTR("G28 Z20")); //standby pos
+		enquecommand_P(PSTR("G1 Z20")); //standby pos
 
-		enquecommand_P(PSTR("M300 S1397 P240")); //make some noise
-		enquecommand_P(PSTR("M300 S1760 P240")); 
-		enquecommand_P(PSTR("GM300 S2093 P240"));
-		enquecommand_P(PSTR("M300 S1397 P720"));
-		enquecommand_P(PSTR("M300 S0 P240"));
-
-        // return to the previous menu
+        // return to main menu
         lcd_quick_feedback();
-        currentMenu = lcd_prepare_menu;
+        lcd_return_to_status();
     }
 }
 // END of 3 Point Bed Adjustment Routine
@@ -746,9 +732,8 @@ static void lcd_prepare_menu()
       MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
     #endif
 #endif
-    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-	MENU_ITEM(submenu, MSG_BED_LEVEL, bed_leveling);
+	MENU_ITEM(function, MSG_BED_LEVEL, bed_leveling);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
@@ -769,6 +754,7 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     END_MENU();
 }
 
