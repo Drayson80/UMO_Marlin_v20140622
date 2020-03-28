@@ -655,7 +655,10 @@ static void bed_leveling()
 #else	
     enquecommand_P(PSTR("G28")); //home all axes
     enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
-    enquecommand_P(PSTR("G1 F5000 X40 Y15")); //move to bed leveling point 1
+    //enquecommand_P(PSTR("G1 F5000 X40 Y15")); //move to bed leveling point 1
+	  char buffer[32];
+    sprintf_P(buffer, PSTR("G1 F%i X%i Y%i"), MOVING_SPEED, BED_LEFT_ADJUST_X, BED_LEFT_ADJUST_Y);
+    enquecommand(buffer);
 	menu_action_submenu(point1BedAdjustment);
 #endif
 }
@@ -676,7 +679,10 @@ static void point1BedAdjustment()
           lcd_implementation_draw_line(2, PSTR(""));
           lcd_implementation_draw_line(3, PSTR(""));
 		  enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
-		  enquecommand_P(PSTR("G1 F5000 X146 Y15")); //move to bed leveling point 2
+      //enquecommand_P(PSTR("G1 F5000 X146 Y15")); //move to bed leveling point 2
+      char buffer[32];
+      sprintf_P(buffer, PSTR("G1 F%i X%i Y%i"), MOVING_SPEED, BED_RIGHT_ADJUST_X, BED_RIGHT_ADJUST_Y);
+      enquecommand(buffer);
           lcd_quick_feedback();
           menu_action_submenu(point2BedAdjustment);  //go to next leveling point routine
     }
@@ -697,7 +703,10 @@ static void point2BedAdjustment()
           lcd_implementation_draw_line(2, PSTR(""));
           lcd_implementation_draw_line(3, PSTR(""));
 		  enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
-		  enquecommand_P(PSTR("G1 F5000 X93 Y180")); //move to bed leveling point 3
+	 	 // enquecommand_P(PSTR("G1 F5000 X93 Y180")); //move to bed leveling point 3
+      char buffer[32];
+      sprintf_P(buffer, PSTR("G1 F%i X%i Y%i"), MOVING_SPEED, BED_CENTER_ADJUST_X, BED_CENTER_ADJUST_Y);
+      enquecommand(buffer);
           lcd_quick_feedback();
           menu_action_submenu(point3BedAdjustment);  //go to next leveling point routine
     }

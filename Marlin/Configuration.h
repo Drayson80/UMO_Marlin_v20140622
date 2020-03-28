@@ -12,7 +12,7 @@
 #define STRING_CONFIG_H_AUTHOR "Drayson" // Who made the changes.
 //                      |01234567890123456789|
 #define VERSION_BASE    "Ultimaker: DEV_2014"
-#define VERSION_PROFILE "Drayson Dev_41.1"
+#define VERSION_PROFILE "Drayson Dev_44.1"
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
@@ -353,6 +353,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   //#define BEEP_DURING_FILAMENT_CHANGE //Uncomment to enable an annoying beeper during the filament change command
   #define FILAMENT_RUNOUT_SCRIPT "M600"
 #endif
+
+//===========================================================================
+//=========================== Manual Bed Leveling ===========================
+//===========================================================================
+// 3-point bed leveling routine using the defined points for leveling of bed via main nozzle 
+// Speed for transition between points to be defined too
+#define BED_LEFT_ADJUST_X 40
+#define BED_LEFT_ADJUST_Y 15
+#define BED_RIGHT_ADJUST_X 146
+#define BED_RIGHT_ADJUST_Y 15
+#define BED_CENTER_ADJUST_X 93
+#define BED_CENTER_ADJUST_Y 180
+#define MOVING_SPEED 5000
 
 //===========================================================================
 //============================= Bed Auto Leveling ===========================
