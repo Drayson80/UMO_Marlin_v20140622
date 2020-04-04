@@ -300,7 +300,7 @@
 //#define MENU_ADDAUTOSTART
 
 // The timeout (in ms) to return to the status screen from sub-menus !!no possibility to disable - just set time!!
-#define LCD_TIMEOUT_TO_STATUS 30000 // default 15000 = 15 sec
+#define LCD_TIMEOUT_TO_STATUS 15000 // default 15000 = 15 sec
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG

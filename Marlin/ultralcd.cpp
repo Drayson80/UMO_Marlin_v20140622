@@ -71,6 +71,7 @@ static void lcd_control_temp_offset_menu();
 static void point1BedAdjustment();
 static void point2BedAdjustment();
 static void point3BedAdjustment();
+static bool lcd_disable_timeout = false;
 
 /* Different types of actions that can be used in menu items. */
 static void menu_action_back(menuFunc_t data);
@@ -294,6 +295,7 @@ static void lcd_sdcard_stop()
 /* Menu implementation */
 static void lcd_main_menu()
 {
+        lcd_disable_timeout = false;
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
     if (movesplanned() || IS_SD_PRINTING)
@@ -653,6 +655,7 @@ static void bed_leveling()
 	enquecommand_P(PSTR("G28 X0 Y0"));
     enquecommand_P(PSTR("G29"));
 #else	
+    lcd_disable_timeout = true;
     enquecommand_P(PSTR("G28")); //home all axes
     enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
     //enquecommand_P(PSTR("G1 F5000 X40 Y15")); //move to bed leveling point 1
@@ -763,6 +766,7 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+	lcd_disable_timeout = true;
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     END_MENU();
 }
@@ -772,7 +776,8 @@ static void lcd_move_menu_axis();
 
 static void lcd_move_x()
 {
-    if (encoderPosition != 0)
+  lcd_disable_timeout = true;
+	if (encoderPosition != 0)
     {
         refresh_cmd_timeout();
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -802,7 +807,8 @@ static void lcd_move_x()
 }
 static void lcd_move_y()
 {
-    if (encoderPosition != 0)
+    lcd_disable_timeout = true;
+	if (encoderPosition != 0)
     {
         refresh_cmd_timeout();
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -832,7 +838,8 @@ static void lcd_move_y()
 }
 static void lcd_move_z()
 {
-    if (encoderPosition != 0)
+    lcd_disable_timeout = true;
+	if (encoderPosition != 0)
     {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -862,7 +869,8 @@ static void lcd_move_z()
 }
 static void lcd_move_e()
 {
-    if (encoderPosition != 0)
+    lcd_disable_timeout = true;
+	if (encoderPosition != 0)
     {
         current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
         encoderPosition = 0;
@@ -888,6 +896,7 @@ static void lcd_move_e()
 
 static void lcd_move_menu_axis()
 {
+    lcd_disable_timeout = false;
     START_MENU();
     MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
     MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
@@ -902,22 +911,26 @@ static void lcd_move_menu_axis()
 
 static void lcd_move_menu_10mm()
 {
+        lcd_disable_timeout = true;
     move_menu_scale = 10.0;
     lcd_move_menu_axis();
 }
 static void lcd_move_menu_1mm()
 {
+        lcd_disable_timeout = true;
     move_menu_scale = 1.0;
     lcd_move_menu_axis();
 }
 static void lcd_move_menu_01mm()
 {
+        lcd_disable_timeout = true;
     move_menu_scale = 0.1;
     lcd_move_menu_axis();
 }
 
 static void lcd_move_menu()
 {
+        lcd_disable_timeout = true;
     START_MENU();
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
@@ -1534,6 +1547,10 @@ void lcd_update()
         }
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+
+        if (lcd_disable_timeout)
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+           
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
