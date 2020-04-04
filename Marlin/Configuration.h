@@ -12,7 +12,7 @@
 #define STRING_CONFIG_H_AUTHOR "Drayson" // Who made the changes.
 //                      |01234567890123456789|
 #define VERSION_BASE    "Ultimaker: DEV_2014"
-#define VERSION_PROFILE "Drayson Dev_44.1"
+#define VERSION_PROFILE "Drayson Dev_46.1"
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
