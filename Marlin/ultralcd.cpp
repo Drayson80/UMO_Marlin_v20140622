@@ -788,7 +788,9 @@ static void lcd_prepare_menu()
     #endif
 #endif
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+#ifdef	MANUAL_3P_BED_ADJUST
 	MENU_ITEM(function, MSG_BED_LEVEL, bed_leveling);
+#endif
 #ifdef TOOLHEAD_SUPPORT
     MENU_ITEM(function, MSG_TOOLHEAD_HOME, toolhead_home);
 #endif
