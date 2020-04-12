@@ -71,6 +71,8 @@ static void lcd_control_temp_offset_menu();
 static void point1BedAdjustment();
 static void point2BedAdjustment();
 static void point3BedAdjustment();
+static void toolhead_home1();
+static void toolhead_home2();
 static bool lcd_disable_timeout = false;
 
 /* Different types of actions that can be used in menu items. */
@@ -646,6 +648,46 @@ void lcd_cooldown()
     lcd_return_to_status();
 }
 
+#ifdef TOOLHEAD_SUPPORT  //toolhead homing routine
+static void toolhead_home()
+{
+    lcd_disable_timeout = true;
+    enquecommand_P(PSTR("G28")); //home all axes
+    enquecommand_P(PSTR("G1 Z5")); //raise Z by 5 mm
+    char buffer[32];
+    sprintf_P(buffer,PSTR("G1 F%i X%i"), MOVING_SPEED, BED_CENTER_ADJUST_X);
+    enquecommand(buffer);
+	menu_action_submenu(toolhead_home1);
+}
+static void toolhead_home1()
+{
+    char buffer[32];
+    sprintf_P(buffer,PSTR("G1 Z%i F12000"), TOOLHEAD_OFFSET_VALUE);
+    enquecommand(buffer);
+    lcd_implementation_draw_line(0, PSTR("  Insert z-spacer   "));
+    lcd_implementation_draw_line(1, PSTR("         and        "));
+    lcd_implementation_draw_line(2, PSTR("   mount toolhead   "));
+    lcd_implementation_draw_line(3, PSTR("- Push to continue -"));
+    // wait for Click to continue
+    if (LCD_CLICKED)
+    {
+        // clean screen to continue
+          lcd_implementation_draw_line(0, PSTR(""));
+          lcd_implementation_draw_line(1, PSTR(""));
+          lcd_implementation_draw_line(2, PSTR(""));
+          lcd_implementation_draw_line(3, PSTR(""));
+		 lcd_quick_feedback(); 
+		 menu_action_submenu(toolhead_home2);
+    }
+} 
+static void toolhead_home2()
+{	
+		enquecommand_P(PSTR("G28")); //home all axes
+		enquecommand_P(PSTR("G1 Z20")); //standby pos
+          lcd_return_to_status();
+}
+#endif
+
 
 // 3 Point Bed Adjustment Routine
 
@@ -737,6 +779,7 @@ static void point3BedAdjustment()
 
 static void lcd_prepare_menu()
 {
+  lcd_disable_timeout = false;
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
 #ifdef SDSUPPORT
@@ -746,6 +789,9 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 	MENU_ITEM(function, MSG_BED_LEVEL, bed_leveling);
+#ifdef TOOLHEAD_SUPPORT
+    MENU_ITEM(function, MSG_TOOLHEAD_HOME, toolhead_home);
+#endif
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0

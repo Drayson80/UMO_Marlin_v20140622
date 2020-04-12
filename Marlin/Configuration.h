@@ -12,7 +12,7 @@
 #define STRING_CONFIG_H_AUTHOR "Drayson" // Who made the changes.
 //                      |01234567890123456789|
 #define VERSION_BASE    "Ultimaker: DEV_2014"
-#define VERSION_PROFILE "Drayson Dev_46.1"
+#define VERSION_PROFILE "Drayson Dev_48.1"
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
@@ -358,7 +358,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //=========================== Manual Bed Leveling ===========================
 //===========================================================================
 // 3-point bed leveling routine using the defined points for leveling of bed via main nozzle 
-// Speed for transition between points to be defined too
+#define MANUAL_3P_BED_ADJUST
+
+// Leveling points and speed for transition between points to be defined too
 #define BED_LEFT_ADJUST_X 40
 #define BED_LEFT_ADJUST_Y 15
 #define BED_RIGHT_ADJUST_X 146
@@ -532,6 +534,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_PROBE_OFFSET_RANGE_MAX -5
 #endif
 
+// Toolhead support
+// enable to support positioning of head for mounting head and z-bracket
+#define TOOLHEAD_SUPPORT  //Uncomment to enable toolhead support such for el-cheapo laser, drag knife and similar ones
+#define TOOLHEAD_OFFSET_VALUE 180 // Offset value
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...

@@ -81,6 +81,7 @@
 	#define MSG_DISABLE_STEPPERS "Disable steppers"
 	#define MSG_AUTO_HOME "Auto home"
 	#define MSG_BED_LEVEL "3P Bed Leveling"
+    #define MSG_TOOLHEAD_HOME "Prep Toolhead"
 	#define MSG_SET_ORIGIN "Set origin"
 	#define MSG_PREHEAT_PLA "Preheat PLA"
 	#define MSG_PREHEAT_PLA0 "Preheat PLA 1"
@@ -271,6 +272,7 @@
 	#define MSG_TEMP_OVERRIDE "Temp. overrides"
 	#define MSG_TEMP_OFFSET "Temp. offsets"
     #define MSG_FAN_OFFSET "Fan spd (%)"
+	
 #endif
 
 
