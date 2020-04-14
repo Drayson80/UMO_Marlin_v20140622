@@ -40,6 +40,8 @@
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
+  
+  extern boolean forced_heating_stop;
 
   void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
     
