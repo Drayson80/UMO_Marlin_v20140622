@@ -689,8 +689,7 @@ static void toolhead_home2()
 #endif
 
 
-// 3 Point Bed Adjustment Routine
-
+#ifdef MANUAL_3P_BED_ADJUST  // 3 Point Bed Adjustment Routine
 static void bed_leveling()
 {
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -775,7 +774,7 @@ static void point3BedAdjustment()
         lcd_return_to_status();
     }
 }
-// END of 3 Point Bed Adjustment Routine
+#endif
 
 static void lcd_prepare_menu()
 {
@@ -788,7 +787,9 @@ static void lcd_prepare_menu()
     #endif
 #endif
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+#ifdef MANUAL_3P_BED_ADJUST
 	MENU_ITEM(function, MSG_BED_LEVEL, bed_leveling);
+#endif
 #ifdef TOOLHEAD_SUPPORT
     MENU_ITEM(function, MSG_TOOLHEAD_HOME, toolhead_home);
 #endif
