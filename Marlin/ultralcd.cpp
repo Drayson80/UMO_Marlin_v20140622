@@ -74,6 +74,9 @@ static void point3BedAdjustment();
 static void toolhead_home1();
 static void toolhead_home2();
 static bool lcd_disable_timeout = false;
+static void load_move();
+static void unload_move();
+static void load_unload_final();
 
 /* Different types of actions that can be used in menu items. */
 static void menu_action_back(menuFunc_t data);
@@ -648,6 +651,401 @@ void lcd_cooldown()
     lcd_return_to_status();
 }
 
+#ifdef LOAD_UNLOAD_MENU  //load/unload routines
+static void lcd_load_pla0() // Extruder T0
+{
+	setTargetHotend0(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(0) - degTargetHotend(0)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+static void lcd_load_abs0() // Extruder T0
+{
+	setTargetHotend0(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(0) - degTargetHotend(0)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+#if TEMP_SENSOR_1 != 0 //2 extruder preheat
+static void lcd_load_pla1() // Extruder T1
+{
+	setTargetHotend1(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(1) - degTargetHotend(1)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+static void lcd_load_abs1() // Extruder T1
+{
+	setTargetHotend1(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(1) - degTargetHotend(1)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+#endif
+#if TEMP_SENSOR_2 != 0 //3 extruder preheat
+static void lcd_load_pla2() // Extruder T2
+{
+	setTargetHotend2(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(2) - degTargetHotend(2)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+static void lcd_load_abs2() // Extruder T2
+{
+	setTargetHotend2(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(2) - degTargetHotend(2)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  	  LCD_MESSAGEPGM(MSG_LOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(load_move);
+}
+#endif
+static void load_move()
+{
+float target[4];
+float feedrate = 3000.0;
+	
+        target[X_AXIS]=current_position[X_AXIS];
+        target[Y_AXIS]=current_position[Y_AXIS];
+        target[Z_AXIS]=current_position[Z_AXIS];
+        target[E_AXIS]=current_position[E_AXIS];
+		
+	    //lift Z for safety
+            target[Z_AXIS]+= FILAMENTCHANGE_ZADD;
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+		
+		//move filament
+            target[E_AXIS]+= ((-1)*FILAMENTCHANGE_FINALRETRACT);
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		     target[E_AXIS]+= (((-1)*FILAMENTCHANGE_FIRSTRETRACT) + 50);
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 500/60, active_extruder);
+		
+        //finish moves
+        st_synchronize();
+        //disable extruder steppers so filament can be removed
+        disable_e0();
+        disable_e1();
+        disable_e2();
+        delay(100);
+		lcd_return_to_status();
+
+            target[E_AXIS]+= 0 ;
+        plan_set_e_position(target[E_AXIS]);
+
+		menu_action_function(load_unload_final);
+	}
+
+static void lcd_unload_pla0() // Extruder T0
+{
+	setTargetHotend0(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(0) - degTargetHotend(0)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+static void lcd_unload_abs0() // Extruder T0
+{
+	setTargetHotend0(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(0) - degTargetHotend(0)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+#if TEMP_SENSOR_1 != 0 //2 extruder preheat
+static void lcd_unload_pla1() // Extruder T1
+{
+	setTargetHotend1(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(1) - degTargetHotend(1)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+static void lcd_unload_abs1() // Extruder T1
+{
+	setTargetHotend1(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(1) - degTargetHotend(1)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+#endif
+#if TEMP_SENSOR_2 != 0 //3 extruder preheat
+static void lcd_unload_pla2() // Extruder T2
+{
+	setTargetHotend2(plaPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(2) - degTargetHotend(2)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+static void lcd_unload_abs2() // Extruder T2
+{
+	setTargetHotend2(absPreheatHotendTemp);
+	  lcd_return_to_status();
+	  LCD_MESSAGEPGM(MSG_HEATING);
+    while (labs(degHotend(2) - degTargetHotend(2)) > TEMP_HYSTERESIS)
+    {
+	  manage_heater();
+      manage_inactivity();
+      lcd_update();
+    }
+            char buffer[32];
+            enquecommand_P(PSTR("G28"));
+            sprintf_P(buffer, PSTR("G1 F%i Z%i"), MOVING_SPEED, 30);
+            enquecommand(buffer);
+	  
+	  LCD_MESSAGEPGM(MSG_UNLOAD_ROUTINE);
+	  delay(1000);
+	  lcd_return_to_status();
+	  menu_action_function(unload_move);
+}
+#endif
+static void unload_move()
+{
+float target[4];
+float feedrate = 3000.0;
+	
+        target[X_AXIS]=current_position[X_AXIS];
+        target[Y_AXIS]=current_position[Y_AXIS];
+        target[Z_AXIS]=current_position[Z_AXIS];
+        target[E_AXIS]=current_position[E_AXIS];
+
+	  lcd_return_to_status();
+	    //lift Z for safety
+            target[Z_AXIS]+= FILAMENTCHANGE_ZADD;
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+		//move filament		
+            target[E_AXIS]+= ((-1)*FILAMENTCHANGE_FIRSTRETRACT);
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+            target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT - 50;
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+
+        //finish moves
+        st_synchronize();
+        //disable extruder steppers so filament can be removed
+        disable_e0();
+        disable_e1();
+        disable_e2();
+        delay(100);
+		lcd_return_to_status();
+        LCD_ALERTMESSAGEPGM(MSG_UNLOAD_ROUTINE);
+
+            target[E_AXIS]+= 0 ;
+        plan_set_e_position(target[E_AXIS]);
+        delay(100);
+		menu_action_function(load_unload_final);
+	}
+
+static void load_unload_final()
+{	
+	setTargetHotend0(0);
+    setTargetHotend1(0);
+    setTargetHotend2(0);	
+	
+	disable_x();
+    disable_y();
+    disable_z();
+
+    lcd_return_to_status();
+	LCD_MESSAGEPGM(WELCOME_MSG);
+}
+
+static void lcd_load_pla_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_LOAD_PLA0, lcd_load_pla0);
+#if TEMP_SENSOR_1 != 0 //2 extruder prepare
+    MENU_ITEM(function, MSG_LOAD_PLA1, lcd_load_pla1);
+#endif //2 extruder prepare
+#if TEMP_SENSOR_2 != 0 //3 extruder prepare
+    MENU_ITEM(function, MSG_LOAD_PLA2, lcd_load_pla2);
+#endif //3 extruder prepare
+    END_MENU();
+}
+static void lcd_load_abs_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_LOAD_ABS0, lcd_load_abs0);
+#if TEMP_SENSOR_1 != 0 //2 extruder prepare
+    MENU_ITEM(function, MSG_LOAD_ABS1, lcd_load_abs1);
+#endif //2 extruder prepare
+#if TEMP_SENSOR_2 != 0 //3 extruder prepare
+    MENU_ITEM(function, MSG_LOAD_ABS2, lcd_load_abs2);
+#endif //3 extruder prepare
+    END_MENU();
+}
+static void lcd_unload_pla_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_UNLOAD_PLA0, lcd_unload_pla0);
+#if TEMP_SENSOR_1 != 0 //2 extruder prepare
+    MENU_ITEM(function, MSG_UNLOAD_PLA1, lcd_unload_pla1);
+#endif //2 extruder prepare
+#if TEMP_SENSOR_2 != 0 //3 extruder prepare
+    MENU_ITEM(function, MSG_UNLOAD_PLA2, lcd_unload_pla2);
+#endif //3 extruder prepare
+    END_MENU();
+}
+static void lcd_unload_abs_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_UNLOAD_ABS0, lcd_unload_abs0);
+#if TEMP_SENSOR_1 != 0 //2 extruder prepare
+    MENU_ITEM(function, MSG_UNLOAD_ABS1, lcd_unload_abs1);
+#endif //2 extruder prepare
+#if TEMP_SENSOR_2 != 0 //3 extruder prepare
+    MENU_ITEM(function, MSG_UNLOAD_ABS2, lcd_unload_abs2);
+#endif //3 extruder prepare
+    END_MENU();
+}
+#endif
+
 #ifdef TOOLHEAD_SUPPORT  //toolhead homing routine
 static void toolhead_home()
 {
@@ -794,6 +1192,19 @@ static void lcd_prepare_menu()
     MENU_ITEM(function, MSG_TOOLHEAD_HOME, toolhead_home);
 #endif
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#if TEMP_SENSOR_0 != 0
+  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
+	MENU_ITEM(submenu, MSG_LOAD_PLA, lcd_load_pla_menu);
+	MENU_ITEM(submenu, MSG_LOAD_ABS, lcd_load_abs_menu);
+	MENU_ITEM(submenu, MSG_UNLOAD_PLA, lcd_unload_pla_menu);
+	MENU_ITEM(submenu, MSG_UNLOAD_ABS, lcd_unload_abs_menu);	
+  #else
+    MENU_ITEM(function, MSG_LOAD_PLA, lcd_load_pla0);
+	MENU_ITEM(function, MSG_LOAD_ABS, lcd_load_abs0);
+    MENU_ITEM(function, MSG_UNLOAD_PLA, lcd_unload_pla0);
+    MENU_ITEM(function, MSG_UNLOAD_ABS, lcd_unload_abs0);
+  #endif
+#endif	
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
