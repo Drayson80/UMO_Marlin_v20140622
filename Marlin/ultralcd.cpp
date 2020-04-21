@@ -50,6 +50,7 @@ extern bool powersupply;
 static void lcd_main_menu();
 static void lcd_tune_menu();
 static void lcd_prepare_menu();
+static void lcd_maintain_menu();
 static void lcd_move_menu();
 static void lcd_control_menu();
 static void lcd_control_temperature_menu();
@@ -303,13 +304,7 @@ static void lcd_main_menu()
         lcd_disable_timeout = false;
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
-    if (movesplanned() || IS_SD_PRINTING)
-    {
-        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-    }else{
-        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-    }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+
 #ifdef SDSUPPORT
     if (card.cardOK)
     {
@@ -333,6 +328,15 @@ static void lcd_main_menu()
 #endif
     }
 #endif
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    }else{
+	MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
+	MENU_ITEM(submenu, MSG_MAINTAIN, lcd_maintain_menu);
+    }
+    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(submenu, MSG_VERSION, lcd_control_version_menu);	
     END_MENU();
 }
 
@@ -1174,7 +1178,7 @@ static void point3BedAdjustment()
 }
 #endif
 
-static void lcd_prepare_menu()
+static void lcd_maintain_menu()
 {
   lcd_disable_timeout = false;
     START_MENU();
@@ -1187,13 +1191,32 @@ static void lcd_prepare_menu()
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 #ifdef MANUAL_3P_BED_ADJUST
 	MENU_ITEM(function, MSG_BED_LEVEL, bed_leveling);
+	#endif
+    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#if PS_ON_PIN > -1
+    if (powersupply)
+    {
+        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
+    }else{
+        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
+    }
 #endif
+    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 #ifdef TOOLHEAD_SUPPORT
     MENU_ITEM(function, MSG_TOOLHEAD_HOME, toolhead_home);
-#endif
-    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#endif	
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
+    END_MENU();
+}
+
+static void lcd_prepare_menu()
+{
+  lcd_disable_timeout = false;
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+#ifdef LOAD_UNLOAD_MENU
 #if TEMP_SENSOR_0 != 0
-  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
+  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0
 	MENU_ITEM(submenu, MSG_LOAD_PLA, lcd_load_pla_menu);
 	MENU_ITEM(submenu, MSG_LOAD_ABS, lcd_load_abs_menu);
 	MENU_ITEM(submenu, MSG_UNLOAD_PLA, lcd_unload_pla_menu);
@@ -1204,6 +1227,7 @@ static void lcd_prepare_menu()
     MENU_ITEM(function, MSG_UNLOAD_PLA, lcd_unload_pla0);
     MENU_ITEM(function, MSG_UNLOAD_ABS, lcd_unload_abs0);
   #endif
+#endif
 #endif	
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
@@ -1215,18 +1239,7 @@ static void lcd_prepare_menu()
   #endif
 #endif
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-#if PS_ON_PIN > -1
-    if (powersupply)
-    {
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-    }else{
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    }
-#endif
-    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
-	lcd_disable_timeout = true;
-    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
-    END_MENU();
+	END_MENU();
 }
 
 float move_menu_scale;
@@ -1416,7 +1429,6 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
-    MENU_ITEM(submenu, MSG_VERSION, lcd_control_version_menu);
     END_MENU();
 }
 
@@ -1660,8 +1672,7 @@ static void lcd_control_version_menu()
     if (LCD_CLICKED)
     {
         lcd_quick_feedback();
-        currentMenu = lcd_control_menu;
-        encoderPosition = 0;
+        lcd_return_to_status();
     }
 }
 

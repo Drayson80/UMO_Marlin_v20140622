@@ -161,6 +161,7 @@
 	#define MSG_REFRESH "Refresh"
 	#define MSG_WATCH "Info screen"
 	#define MSG_PREPARE "Prepare"
+	#define MSG_MAINTAIN "Maintain"
 	#define MSG_TUNE "Tune"
 	#define MSG_PAUSE_PRINT "Pause print"
 	#define MSG_RESUME_PRINT "Resume print"
