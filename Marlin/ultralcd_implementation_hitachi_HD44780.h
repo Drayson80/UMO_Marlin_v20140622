@@ -200,6 +200,11 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
 
+#ifdef SHOW_BOOTSCREEN
+  static void bootscreen();
+  static bool show_bootscreen = true;
+#endif
+
 /* Custom characters defined in the first 8 characters of the LCD */
 #define LCD_STR_BEDTEMP     "\x00"
 #define LCD_STR_DEGREE      "\x01"
@@ -321,6 +326,10 @@ static void lcd_implementation_init()
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 #endif
 
+#ifdef SHOW_BOOTSCREEN
+    if (show_bootscreen) bootscreen();
+#endif
+  
     lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
     lcd.createChar(LCD_STR_DEGREE[0], degree);
     lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
@@ -344,6 +353,83 @@ static void lcd_printPGM(const char* str)
         lcd.write(c);
     }
 }
+#ifdef SHOW_BOOTSCREEN
+  static void bootscreen() {
+    show_bootscreen = false;
+    byte top_left[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00001,
+      B00010,
+      B00100,
+      B00100
+    };
+    byte top_right[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B11100,
+      B11100,
+      B01100,
+      B00100,
+      B00100
+    };
+    byte botom_left[8] = {
+      B00100,
+      B00010,
+      B00001,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    byte botom_right[8] = {
+      B00100,
+      B01000,
+      B10000,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    lcd.createChar(0, top_left);
+    lcd.createChar(1, top_right);
+    lcd.createChar(2, botom_left);
+    lcd.createChar(3, botom_right);
+
+    lcd.clear();
+    //                                                         12345678901234567890
+    lcd.setCursor(0, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------"));  lcd.print('\x01');
+    lcd.setCursor(0, 1);                    lcd_printPGM(PSTR("|Marlin| "));
+    #if (LCD_WIDTH > 16) && defined(STRING_SPLASH_LINE1)
+       lcd_printPGM(PSTR(STRING_SPLASH_LINE1));
+    #endif
+    lcd.setCursor(0, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------"));  lcd.print('\x03');
+
+    lcd.setCursor(0, 3);                    lcd_printPGM(PSTR("marlinfirmware.org"));
+    delay(2000);
+
+    #if (LCD_WIDTH <= 16) && defined(STRING_SPLASH_LINE1)
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR("                  "));
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR(STRING_SPLASH_LINE1));
+      delay(1000);
+    #endif
+
+    #ifdef STRING_SPLASH_LINE2
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR("                  "));
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR(STRING_SPLASH_LINE2));
+      delay(1000);
+    #endif
+  }
+#endif // SHOW_BOOTSCREEN
 /*
 Possible status screens:
 16x2   |0123456789012345|
