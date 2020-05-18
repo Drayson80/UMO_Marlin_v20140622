@@ -954,7 +954,6 @@ float feedrate = 3000.0;
         target[Z_AXIS]=current_position[Z_AXIS];
         target[E_AXIS]=current_position[E_AXIS];
 
-	  lcd_return_to_status();
 	    //lift Z for safety
             target[Z_AXIS]+= FILAMENTCHANGE_ZADD;
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
@@ -974,7 +973,6 @@ float feedrate = 3000.0;
         disable_e2();
         delay(100);
 		lcd_return_to_status();
-        LCD_ALERTMESSAGEPGM(MSG_UNLOAD_ROUTINE);
 
             target[E_AXIS]+= 0 ;
         plan_set_e_position(target[E_AXIS]);

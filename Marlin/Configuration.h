@@ -12,7 +12,7 @@
 #define STRING_CONFIG_H_AUTHOR "Drayson" // Who made the changes.
 //                      |01234567890123456789|
 #define VERSION_BASE    "Ultimaker: DEV_2014"
-#define VERSION_PROFILE "Drayson Dev_56.1"
+#define VERSION_PROFILE "Drayson Dev_58.1"
 #define VERSION_STRING  VERSION_BASE " (" VERSION_PROFILE ")"
 #define SHOW_BOOTSCREEN
 #define STRING_SPLASH_LINE1 "Drayson Dev" // will be shown during bootup in line 1 => 11 digits allowed
