@@ -658,6 +658,7 @@ void lcd_cooldown()
 #ifdef LOAD_UNLOAD_MENU  //load/unload routines
 static void lcd_load_pla0() // Extruder T0
 {
+	active_extruder = 0;
 	setTargetHotend0(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -678,6 +679,7 @@ static void lcd_load_pla0() // Extruder T0
 }
 static void lcd_load_abs0() // Extruder T0
 {
+	active_extruder = 0;
 	setTargetHotend0(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -699,6 +701,7 @@ static void lcd_load_abs0() // Extruder T0
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
 static void lcd_load_pla1() // Extruder T1
 {
+	active_extruder = 1;
 	setTargetHotend1(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -719,6 +722,7 @@ static void lcd_load_pla1() // Extruder T1
 }
 static void lcd_load_abs1() // Extruder T1
 {
+	active_extruder = 1;
 	setTargetHotend1(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -741,6 +745,7 @@ static void lcd_load_abs1() // Extruder T1
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
 static void lcd_load_pla2() // Extruder T2
 {
+	active_extruder = 2;
 	setTargetHotend2(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -761,6 +766,7 @@ static void lcd_load_pla2() // Extruder T2
 }
 static void lcd_load_abs2() // Extruder T2
 {
+	active_extruder = 2;
 	setTargetHotend2(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -784,7 +790,7 @@ static void load_move()
 {
 float target[4];
 float feedrate = 3000.0;
-	
+
         target[X_AXIS]=current_position[X_AXIS];
         target[Y_AXIS]=current_position[Y_AXIS];
         target[Z_AXIS]=current_position[Z_AXIS];
@@ -818,6 +824,7 @@ float feedrate = 3000.0;
 
 static void lcd_unload_pla0() // Extruder T0
 {
+	active_extruder = 0;
 	setTargetHotend0(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -838,6 +845,7 @@ static void lcd_unload_pla0() // Extruder T0
 }
 static void lcd_unload_abs0() // Extruder T0
 {
+	active_extruder = 0;
 	setTargetHotend0(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -859,6 +867,7 @@ static void lcd_unload_abs0() // Extruder T0
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
 static void lcd_unload_pla1() // Extruder T1
 {
+	active_extruder = 1;
 	setTargetHotend1(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -880,6 +889,7 @@ static void lcd_unload_pla1() // Extruder T1
 }
 static void lcd_unload_abs1() // Extruder T1
 {
+	active_extruder = 1;
 	setTargetHotend1(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -903,6 +913,7 @@ static void lcd_unload_abs1() // Extruder T1
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
 static void lcd_unload_pla2() // Extruder T2
 {
+	active_extruder = 2;
 	setTargetHotend2(plaPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -924,6 +935,7 @@ static void lcd_unload_pla2() // Extruder T2
 }
 static void lcd_unload_abs2() // Extruder T2
 {
+	active_extruder = 2;
 	setTargetHotend2(absPreheatHotendTemp);
 	  lcd_return_to_status();
 	  LCD_MESSAGEPGM(MSG_HEATING);
@@ -982,6 +994,8 @@ float feedrate = 3000.0;
 
 static void load_unload_final()
 {	
+	active_extruder = 0;
+	
 	setTargetHotend0(0);
     setTargetHotend1(0);
     setTargetHotend2(0);	
