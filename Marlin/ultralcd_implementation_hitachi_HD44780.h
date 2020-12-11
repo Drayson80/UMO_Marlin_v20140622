@@ -3,7 +3,6 @@
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
-* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
 #ifndef REPRAPWORLD_KEYPAD
@@ -190,10 +189,6 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 
 #else
   // Standard directly connected LCD implementations
-  #if LANGUAGE_CHOICE == 6
-    #include "LiquidCrystalRus.h"
-    #define LCD_CLASS LiquidCrystalRus
-  #else 
     #include <LiquidCrystal.h>
     #define LCD_CLASS LiquidCrystal
   #endif  
